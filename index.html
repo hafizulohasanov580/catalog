@@ -183,6 +183,13 @@
   @media (max-width:600px){
     .cart-fab{left:0;right:0;bottom:0;width:100%;border-radius:0;justify-content:center;padding:.9rem 1rem;}
   }
+
+  .back-to-top{position:fixed;right:1.2rem;bottom:5.4rem;z-index:30;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:var(--shadow-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .25s ease,transform .25s ease,background .18s ease;}
+  .back-to-top.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+  .back-to-top:hover{background:var(--tint-grey);}
+  .back-to-top:active{transform:scale(.9);}
+  .back-to-top svg{width:19px;height:19px;}
+  @media (max-width:600px){ .back-to-top{bottom:4.9rem;right:1rem;} }
   .cart-overlay{position:fixed;inset:0;background:rgba(10,12,11,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s ease;}
   .cart-overlay.open{opacity:1;pointer-events:auto;}
   .cart-drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:var(--surface);z-index:50;box-shadow:-8px 0 30px rgba(0,0,0,.2);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;}
@@ -495,6 +502,9 @@
 <button class="cart-fab" id="cartFab" aria-haspopup="dialog" aria-controls="cartDrawer">
   <svg><use href="#icon-cart"></use></svg>
   <span id="cartFabText" data-i18n="cart_title">Корзина</span>
+</button>
+<button type="button" class="back-to-top" id="backToTopBtn" aria-label="Наверх" title="Наверх">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
 </button>
 <div class="cart-overlay" id="cartOverlay"></div>
 <div class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-label="Cart">
@@ -1487,6 +1497,27 @@
       });
     }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
     els.forEach(function(el){ io2.observe(el); });
+  })();
+
+  // "Back to top" button: shown once the visitor has scrolled well into the
+  // catalog, so they don't have to scroll all the way back up by hand.
+  (function initBackToTop(){
+    var btn = document.getElementById("backToTopBtn");
+    if (!btn) return;
+    var SHOW_AFTER = 480;
+    var ticking = false;
+    function update(){
+      ticking = false;
+      if (window.scrollY > SHOW_AFTER) btn.classList.add("show");
+      else btn.classList.remove("show");
+    }
+    window.addEventListener("scroll", function(){
+      if (!ticking){ window.requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    update();
+    btn.addEventListener("click", function(){
+      window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+    });
   })();
 
   // Video mutual exclusivity: playing one hero video pauses all others.
